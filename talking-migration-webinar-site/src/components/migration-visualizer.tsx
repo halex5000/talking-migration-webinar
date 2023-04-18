@@ -1,5 +1,5 @@
 import { Container, Typography } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReactFlow, {
   Controls,
   Background,
@@ -8,6 +8,7 @@ import ReactFlow, {
   Edge,
   MarkerType,
 } from "reactflow";
+import { useFlags, useLDClient } from "launchdarkly-react-client-sdk";
 import "reactflow/dist/style.css";
 
 export default function MigrationVisualizer() {
@@ -21,8 +22,15 @@ export default function MigrationVisualizer() {
   const beginningYPosition = 300;
   const apiXPosition = 350;
   const databaseXPosition = 700;
-  const oldYPosition = 100;
-  const newYPosition = 500;
+  const oldYPosition = 150;
+  const newYPosition = 450;
+
+  const markerEnd = {
+    strokeWidth: 5,
+    type: MarkerType.ArrowClosed,
+    height: 20,
+    width: 20,
+  };
 
   const initialNodes: Node[] = [
     {
@@ -40,6 +48,9 @@ export default function MigrationVisualizer() {
       data: { label: <Label text="Old API" /> },
       position: { x: apiXPosition, y: oldYPosition },
       type: "default",
+      style: {
+        backgroundColor: "#A34FDE",
+      },
       targetPosition: Position.Left,
       sourcePosition: Position.Right,
     },
@@ -48,6 +59,9 @@ export default function MigrationVisualizer() {
       data: { label: <Label text="New API" /> },
       position: { x: apiXPosition, y: newYPosition },
       type: "default",
+      style: {
+        backgroundColor: "#A34FDE",
+      },
       targetPosition: Position.Left,
       sourcePosition: Position.Right,
     },
@@ -56,6 +70,9 @@ export default function MigrationVisualizer() {
       data: { label: <Label text="New Database" /> },
       position: { x: databaseXPosition, y: newYPosition },
       type: "output",
+      style: {
+        backgroundColor: "#3DD6F5",
+      },
       targetPosition: Position.Left,
     },
     {
@@ -63,79 +80,89 @@ export default function MigrationVisualizer() {
       data: { label: <Label text="Old Database" /> },
       position: { x: databaseXPosition, y: oldYPosition },
       type: "output",
+      style: {
+        backgroundColor: "#3DD6F5",
+      },
       targetPosition: Position.Left,
     },
   ];
 
   const initialEdges: Edge[] = [
     {
-      id: "e1-2",
+      id: "frontend-to-old-api",
       source: "1",
       target: "2",
       animated: true,
-      markerEnd: {
-        strokeWidth: 5,
-        type: MarkerType.ArrowClosed,
+      style: {
+        lineHeight: 10,
       },
+      markerEnd,
     },
     {
-      id: "e1-3",
+      id: "frontend-to-new-api",
       source: "1",
       target: "3",
-      markerEnd: {
-        strokeWidth: 5,
-        type: MarkerType.ArrowClosed,
-      },
+      markerEnd,
     },
     {
-      id: "e2-4",
+      id: "old-api-to-old-database",
       source: "2",
-      target: "4",
+      target: "5",
       animated: true,
-      markerEnd: {
-        strokeWidth: 5,
-        type: MarkerType.ArrowClosed,
-      },
+      markerEnd,
     },
     {
-      id: "e2-5",
-      source: "2",
-      target: "5",
-      animated: false,
-      markerEnd: {
-        strokeWidth: 5,
-        type: MarkerType.ArrowClosed,
-      },
-    },
-    {
-      id: "e3-4",
+      id: "new-api-to-new-database",
       source: "3",
       target: "4",
       animated: false,
-      markerEnd: {
-        strokeWidth: 5,
-        type: MarkerType.ArrowClosed,
-      },
+      markerEnd,
     },
     {
-      id: "e3-5",
+      id: "new-api-to-old-database",
       source: "3",
       target: "5",
       animated: false,
-      markerEnd: {
-        strokeWidth: 5,
-        type: MarkerType.ArrowClosed,
-      },
+      markerEnd,
     },
   ];
 
   const [nodes, setNodes] = useState(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
+  const { databaseConnection, apiConnection } = useFlags();
+
+  useEffect(() => {
+    const updatedEdges = edges.map((edge) => {
+      switch (edge.id) {
+        case "frontend-to-old-api":
+          edge.animated = apiConnection === "Old API";
+          return edge;
+        case "frontend-to-new-api":
+          edge.animated = apiConnection === "New API";
+          return edge;
+        case "old-api-to-old-database":
+          edge.animated = apiConnection === "Old API";
+          return edge;
+        case "new-api-to-new-database":
+          edge.animated =
+            apiConnection === "New API" &&
+            databaseConnection === "New Database";
+          return edge;
+        case "new-api-to-old-database":
+          edge.animated =
+            apiConnection === "New API" &&
+            databaseConnection === "Old Database";
+          return edge;
+        default:
+          return edge;
+      }
+    });
+    setEdges(updatedEdges);
+  }, [databaseConnection, apiConnection]);
 
   return (
     <ReactFlow nodes={nodes} edges={edges}>
       <Background />
-      {/* <Controls /> */}
     </ReactFlow>
   );
 }
