@@ -1,0 +1,47 @@
+[
+  {
+    "feature_doc": "E",
+    "customer_id": 1000,
+    "SK": "cus2000",
+    "PK": "cus1000",
+    "feature_id": 2000,
+    "feature_scalar": 0.854,
+    "record_type": "feature"
+  },
+  {
+    "feature_doc": "E",
+    "customer_id": 1001,
+    "SK": "cus2002",
+    "PK": "cus1001",
+    "feature_id": 2002,
+    "feature_scalar": 0.207,
+    "record_type": "feature"
+  },
+  {
+    "feature_doc": "G",
+    "customer_id": 1001,
+    "SK": "cus2003",
+    "PK": "cus1001",
+    "feature_id": 2003,
+    "feature_scalar": 0.644,
+    "record_type": "feature"
+  },
+  {
+    "feature_doc": "E",
+    "customer_id": 1002,
+    "SK": "cus2003",
+    "PK": "cus1002",
+    "feature_id": 2003,
+    "feature_scalar": 0.617,
+    "record_type": "feature"
+  },
+  {
+    "feature_doc": "A",
+    "customer_id": 1002,
+    "SK": "cus2004",
+    "PK": "cus1002",
+    "feature_id": 2004,
+    "feature_scalar": 0.722,
+    "record_type": "feature"
+  }
+]

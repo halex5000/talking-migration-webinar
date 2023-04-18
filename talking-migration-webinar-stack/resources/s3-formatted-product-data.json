@@ -1,0 +1,67 @@
+[
+  {
+    "PK": "prd1000",
+    "SK": "ver0",
+    "record_type": "product",
+    "product_id": 1000,
+    "version": 0,
+    "product_name": "car1",
+    "product_type": "automotive",
+    "product_description": "Fast convertible",
+    "list_price": 75000,
+    "image_bucket": "dynamodb-images",
+    "image_object": "img/car1.jpg"
+  },
+  {
+    "PK": "prd1001",
+    "SK": "ver0",
+    "record_type": "product",
+    "product_id": 1001,
+    "version": 0,
+    "product_name": "car2",
+    "product_type": "automotive",
+    "product_description": "Five seat hybrid",
+    "list_price": 30000,
+    "image_bucket": "dynamodb-images",
+    "image_object": "img/car2.jpg"
+  },
+  {
+    "PK": "prd1002",
+    "SK": "ver1",
+    "record_type": "product",
+    "product_id": 1002,
+    "version": 1,
+    "product_name": "car3",
+    "product_type": "automotive",
+    "product_description": "4x4 sport",
+    "list_price": 36000,
+    "image_bucket": "dynamodb-images",
+    "image_object": "img/car3.jpg"
+  },
+  {
+    "PK": "prd1002",
+    "SK": "ver2",
+    "record_type": "product",
+    "product_id": 1002,
+    "version": 2,
+    "product_name": "car3",
+    "product_type": "automotive",
+    "product_description": "4x4 sport",
+    "list_price": 37000,
+    "image_bucket": "dynamodb-images",
+    "image_object": "img/car3.jpg"
+  },
+  {
+    "PK": "prd1003",
+    "SK": "ver1",
+    "record_type": "product",
+    "product_id": 1003,
+    "version": 1,
+    "product_name": "car4",
+    "product_type": "automotive",
+    "product_description": "Luxury convertible",
+    "list_price": 86000,
+    "image_bucket": "dynamodb-images",
+    "image_object": "img/car4.jpg"
+  }
+]
