@@ -13,13 +13,12 @@ export default function Home() {
   const user = useAppStore((state) => state.user);
 
   return (
-    <Container sx={{ textAlign: "center", mx: "auto", mt: 5 }}>
+    <Container sx={{ textAlign: "center", mx: "auto", mt: 3 }}>
       <Image
         height={isMobile ? 75 : 100}
         fit="contain"
         src={theme.palette.mode === "dark" ? darkModeLogo : lightModeLogo}
       />
-      <br />
 
       <Typography variant="h4">Welcome to</Typography>
 
@@ -27,17 +26,11 @@ export default function Home() {
         Talking Migration with LaunchDarkly
       </Typography>
 
-      <Box sx={{ py: 2 }} />
-
-      <Typography variant="h4" sx={{ mb: "n1" }}>
-        {user?.username}
-      </Typography>
-
-      <Grid container spacing={2}>
+      <Grid container>
         <Grid item xs={12}>
           <Container
             sx={{
-              height: 600,
+              height: 650,
               width: "100%",
             }}
           >
