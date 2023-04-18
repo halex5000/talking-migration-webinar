@@ -5,6 +5,7 @@ import { isMobile } from "react-device-detect";
 import darkModeLogo from "../assets/dark-mode-logo.png";
 import lightModeLogo from "../assets/light-mode-logo.png";
 import { useAppStore } from "../store/app";
+import MigrationVisualizer from "../components/migration-visualizer";
 
 export default function Home() {
   const theme = useTheme();
@@ -14,15 +15,13 @@ export default function Home() {
   return (
     <Container sx={{ textAlign: "center", mx: "auto", mt: 5 }}>
       <Image
-        height={isMobile ? 100 : 150}
+        height={isMobile ? 75 : 100}
         fit="contain"
         src={theme.palette.mode === "dark" ? darkModeLogo : lightModeLogo}
       />
       <br />
 
-      <Typography variant="h4" sx={{ mt: 5 }}>
-        Welcome to
-      </Typography>
+      <Typography variant="h4">Welcome to</Typography>
 
       <Typography variant="h2" className="heroText">
         Talking Migration with LaunchDarkly
@@ -34,11 +33,17 @@ export default function Home() {
         {user?.username}
       </Typography>
 
-      <Box sx={{ py: 4 }} />
-
       <Grid container spacing={2}>
-        <Grid item xs={2} />
-        <Grid item xs={8}></Grid>
+        <Grid item xs={12}>
+          <Container
+            sx={{
+              height: 600,
+              width: "100%",
+            }}
+          >
+            <MigrationVisualizer />
+          </Container>
+        </Grid>
       </Grid>
     </Container>
   );
