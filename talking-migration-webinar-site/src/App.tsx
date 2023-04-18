@@ -2,7 +2,6 @@ import React from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import { Route, Routes } from "react-router-dom";
 import CssBaseline from "@mui/material/CssBaseline";
-import Layout from "./components/layout";
 import Home from "./views/home";
 import { createTheme } from "@mui/material/styles";
 import Audimat3000 from "./assets/fonts/Audimat3000-Regulier.woff2";
@@ -64,11 +63,9 @@ function App() {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-        </Routes>
-      </Layout>
+      <Routes>
+        <Route path="/" element={<Home />} />
+      </Routes>
     </ThemeProvider>
   );
 }

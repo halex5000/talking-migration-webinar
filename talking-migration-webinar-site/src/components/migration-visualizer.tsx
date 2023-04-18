@@ -18,12 +18,12 @@ export default function MigrationVisualizer() {
     </Container>
   );
 
-  const beginningXPosition = 100;
-  const beginningYPosition = 300;
-  const apiXPosition = 350;
-  const databaseXPosition = 700;
-  const oldYPosition = 150;
-  const newYPosition = 450;
+  const beginningXPosition = 20;
+  const beginningYPosition = 200;
+  const apiXPosition = beginningXPosition + 250;
+  const databaseXPosition = apiXPosition + 300;
+  const oldYPosition = 50;
+  const newYPosition = 350;
 
   const markerEnd = {
     strokeWidth: 5,
