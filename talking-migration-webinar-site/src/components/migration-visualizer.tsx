@@ -129,36 +129,44 @@ export default function MigrationVisualizer() {
 
   const [nodes, setNodes] = useState(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
-  const { databaseConnection, apiConnection } = useFlags();
+  const allFlags = useFlags();
+
+  console.log("all flags", allFlags);
+  const { databaseConnectionConfig, apiConnectionConfiguration } = useFlags();
 
   useEffect(() => {
-    const updatedEdges = edges.map((edge) => {
-      switch (edge.id) {
-        case "frontend-to-old-api":
-          edge.animated = apiConnection === "Old API";
-          return edge;
-        case "frontend-to-new-api":
-          edge.animated = apiConnection === "New API";
-          return edge;
-        case "old-api-to-old-database":
-          edge.animated = apiConnection === "Old API";
-          return edge;
-        case "new-api-to-new-database":
-          edge.animated =
-            apiConnection === "New API" &&
-            databaseConnection === "New Database";
-          return edge;
-        case "new-api-to-old-database":
-          edge.animated =
-            apiConnection === "New API" &&
-            databaseConnection === "Old Database";
-          return edge;
-        default:
-          return edge;
-      }
-    });
-    setEdges(updatedEdges);
-  }, [databaseConnection, apiConnection]);
+    console.log("database connection configuration", databaseConnectionConfig);
+    console.log("api connection configuration", apiConnectionConfiguration);
+
+    if (apiConnectionConfiguration && databaseConnectionConfig) {
+      const updatedEdges = edges.map((edge) => {
+        switch (edge.id) {
+          case "frontend-to-old-api":
+            edge.animated = apiConnectionConfiguration.apiVersion === "v1";
+            return edge;
+          case "frontend-to-new-api":
+            edge.animated = apiConnectionConfiguration.apiVersion === "v2";
+            return edge;
+          case "old-api-to-old-database":
+            edge.animated = apiConnectionConfiguration.apiVersion === "v1";
+            return edge;
+          case "new-api-to-new-database":
+            edge.animated =
+              apiConnectionConfiguration.apiVersion === "v2" &&
+              databaseConnectionConfig.dataSource === "DynamoDB";
+            return edge;
+          case "new-api-to-old-database":
+            edge.animated =
+              apiConnectionConfiguration.apiVersion === "v2" &&
+              databaseConnectionConfig.dataSource === "S3";
+            return edge;
+          default:
+            return edge;
+        }
+      });
+      setEdges(updatedEdges);
+    }
+  }, [databaseConnectionConfig, apiConnectionConfiguration]);
 
   return (
     <ReactFlow nodes={nodes} edges={edges}>
