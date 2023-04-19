@@ -97,15 +97,6 @@ export default function MigrationVisualizer({
       source: "1",
       target: "2",
       animated: true,
-      style: {
-        lineHeight: 10,
-      },
-      markerEnd,
-    },
-    {
-      id: "frontend-to-new-api",
-      source: "1",
-      target: "3",
       markerEnd,
     },
     {
@@ -113,6 +104,20 @@ export default function MigrationVisualizer({
       source: "2",
       target: "5",
       animated: true,
+      markerEnd,
+    },
+    {
+      id: "frontend-to-new-api",
+      source: "1",
+      target: "3",
+      animated: false,
+      markerEnd,
+    },
+    {
+      id: "old-api-to-new-database",
+      source: "2",
+      target: "4",
+      animated: false,
       markerEnd,
     },
     {
@@ -146,8 +151,16 @@ export default function MigrationVisualizer({
           case "frontend-to-new-api":
             edge.animated = apiConnectionConfiguration.apiVersion === "v2";
             return edge;
+          // invalid configuration
+          case "old-api-to-new-database":
+            edge.animated =
+              apiConnectionConfiguration.apiVersion === "v1" &&
+              databaseConnectionConfig.dataSource === "DynamoDB";
+            return edge;
           case "old-api-to-old-database":
-            edge.animated = apiConnectionConfiguration.apiVersion === "v1";
+            edge.animated =
+              apiConnectionConfiguration.apiVersion === "v1" &&
+              databaseConnectionConfig.dataSource !== "DynamoDB";
             return edge;
           case "new-api-to-new-database":
             edge.animated =

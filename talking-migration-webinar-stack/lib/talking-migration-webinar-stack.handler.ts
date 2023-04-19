@@ -9,6 +9,7 @@ const s3Client = new S3({
   region: process.env.REGION ?? "us-east-1",
 });
 
+// launchdarkly client initialization
 const launchDarklyClient = init(process.env.LAUNCHDARKLY_SDK_KEY || "");
 
 export async function handler(
@@ -27,8 +28,10 @@ export async function handler(
   console.log("query string parameters", queryStringParameters);
 
   try {
+    // wait for initialization so we know we'll properly evaluate flags
     await launchDarklyClient.waitForInitialization();
 
+    // build up the context for the evaluation rules
     const context = {
       kind: "user",
       key: queryStringParameters?.key || nanoid(),
@@ -41,8 +44,10 @@ export async function handler(
       timezone: queryStringParameters?.timezone,
     };
 
+    // identify this context as the target in the LaunchDarkly SDK
     launchDarklyClient.identify(context);
 
+    // retrieve the database configuration variation based on the context we've provided
     const databaseConfig: {
       value: {
         dataSource: string;
@@ -51,8 +56,11 @@ export async function handler(
       };
       reason: LDEvaluationReason;
     } = await launchDarklyClient.variationDetail(
+      // the name of the feature flag we're evaluating
       "database-connection-config",
+      // the context we're providing for evaluation
       context,
+      // default values if we can't reach the flag delivery network
       {
         dataSource: "S3",
         tableName: "data3.json",
@@ -85,7 +93,23 @@ export async function handler(
       apiVersion: apiConfig.value.apiVersion,
     };
 
-    if (databaseConfig.value.dataSource === "DynamoDB") {
+    // the error for when we had an unsupport configuration with
+    if (
+      databaseConfig.value.dataSource === "DynamoDB" &&
+      apiConfig.value.apiVersion === "v1"
+    ) {
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({
+          error: {
+            message:
+              "unsupported configuration. API v1 does not support DynamoDB",
+          },
+          items: [],
+        }),
+      };
+    } else if (databaseConfig.value.dataSource === "DynamoDB") {
       // return {
       //   statusCode: 403,
       //   headers,
@@ -100,16 +124,37 @@ export async function handler(
           TableName: databaseConfig.value.tableName,
         })
         .promise();
+
+      if (apiConfig.value.apiVersion === "v1") {
+        return {
+          statusCode: 200,
+          body: JSON.stringify({
+            source,
+            reasons: {
+              api: apiConfig.reason,
+              db: databaseConfig.reason,
+              context,
+            },
+            items: dynamoResults.Items,
+          }),
+          headers,
+        };
+      }
+
       return {
         statusCode: 200,
         body: JSON.stringify({
-          source,
-          reasons: {
-            api: apiConfig.reason,
-            db: databaseConfig.reason,
-            context,
+          meta: {
+            source,
+            reasons: {
+              api: apiConfig.reason,
+              db: databaseConfig.reason,
+              context,
+            },
           },
-          items: dynamoResults.Items,
+          data: {
+            items: dynamoResults.Items,
+          },
         }),
         headers,
       };
@@ -163,17 +208,37 @@ export async function handler(
 
       const recordSet = JSON.parse(recordsString);
 
+      if (apiConfig.value.apiVersion === "v1") {
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({
+            source,
+            reasons: {
+              api: apiConfig.reason,
+              db: databaseConfig.reason,
+              context,
+            },
+            items: recordSet["_1"],
+          }),
+        };
+      }
+
       return {
         statusCode: 200,
         headers,
         body: JSON.stringify({
-          source,
-          reasons: {
-            api: apiConfig.reason,
-            db: databaseConfig.reason,
-            context,
+          meta: {
+            source,
+            reasons: {
+              api: apiConfig.reason,
+              db: databaseConfig.reason,
+              context,
+            },
           },
-          items: recordSet["_1"],
+          data: {
+            items: recordSet["_1"],
+          },
         }),
       };
     }
