@@ -77,6 +77,7 @@ export default function DataVisualizer() {
       if (priorApiVersion === apiConnectionConfiguration.apiVersion) {
         fetchItems();
       } else {
+        priorApiVersion = apiConnectionConfiguration.apiVersion;
         httpClient = axios.create({
           baseURL: apiConnectionConfiguration.baseUrl,
         });

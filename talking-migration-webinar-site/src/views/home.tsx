@@ -2,6 +2,7 @@ import {
   AppBar,
   Box,
   Button,
+  ButtonGroup,
   Container,
   Grid,
   Toolbar,
@@ -52,8 +53,11 @@ export default function Home() {
           <AppBar variant="elevation" elevation={0}>
             <Toolbar>
               <Grid container>
-                <Grid item xs={10}></Grid>
-                <Grid item xs={2}>
+                <Grid item xs={1}>
+                  {user ? `Hello ${user.username}` : null}
+                </Grid>
+                <Grid item xs={dataDebugPanel ? 9 : 10}></Grid>
+                <Grid item xs={dataDebugPanel ? 2 : 1}>
                   {dataDebugPanel ? (
                     <Button
                       onClick={() => {
@@ -61,7 +65,7 @@ export default function Home() {
                       }}
                       sx={{ m: 1 }}
                       variant="contained"
-                      color="secondary"
+                      color="warning"
                     >
                       Debug
                     </Button>
