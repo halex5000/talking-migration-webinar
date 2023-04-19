@@ -110,15 +110,6 @@ export async function handler(
         }),
       };
     } else if (databaseConfig.value.dataSource === "DynamoDB") {
-      // return {
-      //   statusCode: 403,
-      //   headers,
-      //   body: JSON.stringify({
-      //     error: { message: "Unable to query dynamo table" },
-      //     items: [],
-      //   }),
-      // };
-
       const dynamoResults = await dynamoClient
         .scan({
           TableName: databaseConfig.value.tableName,
