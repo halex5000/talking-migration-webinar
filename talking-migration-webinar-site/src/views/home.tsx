@@ -26,7 +26,7 @@ export default function Home() {
   const client = useLDClient();
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isDebugOpen, setIsDebugOpen] = useState(true);
+  const [isDebugOpen, setIsDebugOpen] = useState(false);
   const user = useAppStore((state) => state.user);
   const logout = useAppStore((state) => state.logout);
 
