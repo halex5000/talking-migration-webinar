@@ -19,10 +19,14 @@ export default function LoginDialog({
   isOpen: boolean;
   handleClose: Function;
 }) {
+  //using the hook to get a handle to the LaunchDarkly client
   const client = useLDClient();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
   const login = useAppStore((state) => state.login);
+
   return (
     <Dialog
       open={isOpen}
@@ -57,10 +61,15 @@ export default function LoginDialog({
           color="primary"
           onClick={() => {
             login({ username });
+            ////
+
+            // add to the context of the LaunchDarkly client and update rules when the user logs in
             client?.identify({
               ...client.getContext(),
               name: username,
             });
+
+            ////
             handleClose();
             setUsername("");
             setPassword("");

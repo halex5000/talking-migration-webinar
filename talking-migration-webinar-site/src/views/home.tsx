@@ -22,7 +22,11 @@ import { useAppStore } from "../store/app";
 
 export default function Home() {
   const theme = useTheme();
+
+  // using the React hooks to get feature flags
   const { login, dataDebugPanel } = useFlags();
+
+  // getting a handle to the LaunchDarkly client so we can add to the context
   const client = useLDClient();
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -48,64 +52,70 @@ export default function Home() {
       container
       sx={{ textAlign: "center", mx: "auto", mt: 3, width: "100vw" }}
     >
-      {login ||
-        (dataDebugPanel && (
-          <>
-            <AppBar variant="elevation" elevation={0}>
-              <Toolbar>
-                <Grid container>
-                  <Grid item xs={1}>
-                    {user ? `Hello ${user.username}` : null}
-                  </Grid>
-                  <Grid item xs={dataDebugPanel ? 9 : 10}></Grid>
-                  <Grid item xs={dataDebugPanel ? 2 : 1}>
-                    {dataDebugPanel ? (
-                      <Button
-                        onClick={() => {
-                          setIsDebugOpen(!isDebugOpen);
-                        }}
-                        sx={{ m: 1 }}
-                        variant="contained"
-                        color="warning"
-                      >
-                        Debug
-                      </Button>
-                    ) : null}
-                    {login ? (
-                      <>
-                        {user ? (
-                          <Button
-                            variant="contained"
-                            color="error"
-                            onClick={() => {
-                              client?.identify({
-                                ...client.getContext(),
-                                name: undefined,
-                              });
-                              logout();
-                            }}
-                          >
-                            Logout
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="contained"
-                            onClick={() => {
-                              setIsLoginOpen(true);
-                            }}
-                          >
-                            Login
-                          </Button>
-                        )}
-                      </>
-                    ) : null}
-                  </Grid>
+      {login || dataDebugPanel ? (
+        <>
+          <AppBar variant="elevation" elevation={0}>
+            <Toolbar>
+              <Grid container>
+                <Grid item xs={1}>
+                  {user ? `Hello ${user.username}` : null}
                 </Grid>
-              </Toolbar>
-            </AppBar>
-            <LoginDialog isOpen={isLoginOpen} handleClose={handleLoginClose} />
-          </>
-        ))}
+                <Grid item xs={dataDebugPanel ? 9 : 10}></Grid>
+                <Grid item xs={dataDebugPanel ? 2 : 1}>
+                  {dataDebugPanel ? (
+                    <Button
+                      onClick={() => {
+                        setIsDebugOpen(!isDebugOpen);
+                      }}
+                      sx={{ m: 1 }}
+                      variant="contained"
+                      color="warning"
+                    >
+                      Debug
+                    </Button>
+                  ) : null}
+                  {login ? (
+                    <>
+                      {user ? (
+                        <Button
+                          variant="contained"
+                          color="error"
+                          onClick={() => {
+                            /***********/
+
+                            // clearing the username from the context on logout
+                            client?.identify({
+                              ...client.getContext(),
+                              name: undefined,
+                            });
+
+                            /***********/
+                            logout();
+                          }}
+                        >
+                          Logout
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="contained"
+                          onClick={() => {
+                            setIsLoginOpen(true);
+                          }}
+                        >
+                          Login
+                        </Button>
+                      )}
+                    </>
+                  ) : null}
+                </Grid>
+              </Grid>
+            </Toolbar>
+          </AppBar>
+          <LoginDialog isOpen={isLoginOpen} handleClose={handleLoginClose} />
+        </>
+      ) : (
+        <></>
+      )}
       <Container sx={{ mt: 6 }}>
         <Grid item xs={12}>
           <Image
@@ -121,6 +131,11 @@ export default function Home() {
           </Typography>
         </Grid>
       </Container>
+      ``
+      {/* 
+          an example of a gated react component
+          dataDebugPanel is a LaunchDarkly feature flag and controls the visibility of this component
+      */}
       {isDebugOpen && dataDebugPanel ? (
         <Grid item xs={6}>
           <Container
@@ -144,7 +159,6 @@ export default function Home() {
           </Container>
         </Grid>
       )}
-
       {dataDebugPanel && isDebugOpen ? (
         <Grid item xs={6}>
           <DataVisualizer />

@@ -49,7 +49,11 @@ export default function DataVisualizer() {
   useEffect(() => {
     const fetchItems = async () => {
       try {
+        // here we're using context to inform the API request, passing
+        // in these attributes as params
         const currentContext = launchDarklyClient?.getContext();
+
+        // this way the back end is working with the same information as the front-end
         const response = await httpClient.get("/items", {
           params: {
             ...browserInfo,
@@ -58,6 +62,7 @@ export default function DataVisualizer() {
             name: currentContext?.name,
           },
         });
+
         setItems(response.data);
       } catch (error: any) {
         setItems({
