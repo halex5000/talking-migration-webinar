@@ -1,7 +1,8 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDB } from "aws-sdk";
 import { S3 } from "@aws-sdk/client-s3";
-import { init } from "launchdarkly-node-server-sdk";
+import { LDEvaluationReason, init } from "launchdarkly-node-server-sdk";
+import { nanoid } from "nanoid";
 
 const dynamoClient = new DynamoDB.DocumentClient();
 const s3Client = new S3({
@@ -21,17 +22,31 @@ export async function handler(
     "Access-Control-Allow-Origin": "*",
   };
 
+  const { queryStringParameters } = event;
+
+  console.log("query string parameters", queryStringParameters);
+
   try {
     await launchDarklyClient.waitForInitialization();
 
     const databaseConfig: {
-      dataSource: string;
-      tableName: string;
-      bucket?: string;
-    } = await launchDarklyClient.variation(
+      value: {
+        dataSource: string;
+        tableName: string;
+        bucket?: string;
+      };
+      reason: LDEvaluationReason;
+    } = await launchDarklyClient.variationDetail(
       "database-connection-config",
       {
-        kind: "multi",
+        kind: "user",
+        key: queryStringParameters?.key || nanoid(),
+        browser: queryStringParameters?.browser,
+        cpu: queryStringParameters?.cpu,
+        device: queryStringParameters?.device,
+        engine: queryStringParameters?.engine,
+        operatingSystem: queryStringParameters?.operatingSystem,
+        name: queryStringParameters?.name,
       },
       {
         dataSource: "S3",
@@ -39,13 +54,25 @@ export async function handler(
       }
     );
 
+    console.log("ld DATABASE evaluation reason: ", databaseConfig.reason);
+
     const apiConfig: {
-      apiVersion: string;
-      baseUrl: string;
-    } = await launchDarklyClient.variation(
+      value: {
+        apiVersion: string;
+        baseUrl: string;
+      };
+      reason: LDEvaluationReason;
+    } = await launchDarklyClient.variationDetail(
       "api-connection-configuration",
       {
-        kind: "multi",
+        kind: "user",
+        key: queryStringParameters?.key || nanoid(),
+        browser: queryStringParameters?.browser,
+        cpu: queryStringParameters?.cpu,
+        device: queryStringParameters?.device,
+        engine: queryStringParameters?.engine,
+        operatingSystem: queryStringParameters?.operatingSystem,
+        name: queryStringParameters?.name,
       },
       {
         apiVersion: "v1",
@@ -54,13 +81,15 @@ export async function handler(
       }
     );
 
+    console.log("ld API evaluation reason: ", apiConfig.reason);
+
     const source = {
-      database: databaseConfig.dataSource,
-      table: databaseConfig.tableName,
-      apiVersion: apiConfig.apiVersion,
+      database: databaseConfig.value.dataSource,
+      table: databaseConfig.value.tableName,
+      apiVersion: apiConfig.value.apiVersion,
     };
 
-    if (databaseConfig.dataSource === "DynamoDB") {
+    if (databaseConfig.value.dataSource === "DynamoDB") {
       // return {
       //   statusCode: 403,
       //   headers,
@@ -72,7 +101,7 @@ export async function handler(
 
       const dynamoResults = await dynamoClient
         .scan({
-          TableName: databaseConfig.tableName,
+          TableName: databaseConfig.value.tableName,
         })
         .promise();
       return {
@@ -85,8 +114,8 @@ export async function handler(
       };
     } else {
       const response = await s3Client.selectObjectContent({
-        Bucket: databaseConfig.bucket,
-        Key: databaseConfig.tableName,
+        Bucket: databaseConfig.value.bucket,
+        Key: databaseConfig.value.tableName,
         ExpressionType: "SQL",
         Expression: "SELECT * from S3Object",
         InputSerialization: {
