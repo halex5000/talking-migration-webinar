@@ -2,6 +2,7 @@ import { JsonViewer, NamedColorspace } from "@textea/json-viewer";
 import { useFlags } from "launchdarkly-react-client-sdk";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useAppStore } from "../store/app";
 
 export const ocean: NamedColorspace = {
   scheme: "Ocean",
@@ -27,6 +28,9 @@ export const ocean: NamedColorspace = {
 export default function DataVisualizer() {
   const { databaseConnectionConfig, apiConnectionConfiguration } = useFlags();
 
+  const browserInfo = useAppStore((state) => state.browserInfo);
+  const timezone = useAppStore((state) => state.timezone);
+
   const [items, setItems] = useState({
     message: "no data yet",
     error: {},
@@ -44,7 +48,12 @@ export default function DataVisualizer() {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await httpClient.get("/items");
+        const response = await httpClient.get("/items", {
+          params: {
+            ...browserInfo,
+            timezone,
+          },
+        });
         setItems(response.data);
       } catch (error: any) {
         setItems({

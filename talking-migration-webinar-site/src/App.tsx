@@ -7,6 +7,7 @@ import { createTheme } from "@mui/material/styles";
 import Audimat3000 from "./assets/fonts/Audimat3000-Regulier.woff2";
 import SohneBuch from "./assets/fonts/Sohne-Buch.woff2";
 import SohneKraftig from "./assets/fonts/Sohne-Kraftig.woff2";
+import UserAgent from "./components/user-agent";
 
 const darkTheme = createTheme({
   palette: {
@@ -63,6 +64,7 @@ function App() {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
+      <UserAgent />
       <Routes>
         <Route path="/" element={<Home />} />
       </Routes>

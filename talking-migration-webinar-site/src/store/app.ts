@@ -5,28 +5,28 @@ interface AppState {
   user?: { username: string };
   login({ username }: { username: string }): void;
   logout(): void;
-  // addBrowserInfo(browserInfo: {
-  //   browser: string;
-  //   engine: string;
-  //   ua: string;
-  //   os: string;
-  //   device: string;
-  //   cpu: string;
-  // }): void;
-  // browser?: string;
-  // engine?: string;
-  // operatingSystem?: string;
-  // device?: string;
-  // cpu?: string;
-  // debugAllowList?: string[];
-  // location?: string;
+  addBrowserInfo(browserInfo: UAParser.IResult): void;
+  addTimezone(timezone: string): void;
+  timezone?: string;
+  browserInfo?: {
+    browser?: string;
+    engine?: string;
+    operatingSystem?: string;
+    device?: string;
+    cpu?: string;
+    userAgent?: string;
+  };
 }
 
 export const useAppStore = create<AppState>()(
   devtools(
     persist(
       (set) => ({
-        user: undefined,
+        addTimezone(timezone) {
+          set({
+            timezone,
+          });
+        },
         login({ username: _username }: { username: string }) {
           set({
             user: {
@@ -36,6 +36,19 @@ export const useAppStore = create<AppState>()(
         },
         logout() {
           set({ user: undefined });
+        },
+        addBrowserInfo(browserInfo: UAParser.IResult) {
+          const { browser, engine, ua, os, device, cpu } = browserInfo;
+          set({
+            browserInfo: {
+              browser: browser.name,
+              engine: engine.name,
+              userAgent: ua,
+              operatingSystem: os.name,
+              device: device.model,
+              cpu: cpu.architecture,
+            },
+          });
         },
       }),
       {

@@ -1,7 +1,6 @@
 import { Container, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import ReactFlow, {
-  Controls,
   Background,
   Node,
   Position,
@@ -10,6 +9,7 @@ import ReactFlow, {
 } from "reactflow";
 import { useFlags, useLDClient } from "launchdarkly-react-client-sdk";
 import "reactflow/dist/style.css";
+import { useAppStore } from "../store/app";
 
 export default function MigrationVisualizer() {
   const Label = ({ text }: { text: string }) => (
@@ -19,11 +19,11 @@ export default function MigrationVisualizer() {
   );
 
   const beginningXPosition = 20;
-  const beginningYPosition = 200;
+  const beginningYPosition = 120;
   const apiXPosition = beginningXPosition + 250;
   const databaseXPosition = apiXPosition + 300;
-  const oldYPosition = 50;
-  const newYPosition = 350;
+  const oldYPosition = 20;
+  const newYPosition = oldYPosition + 200;
 
   const markerEnd = {
     strokeWidth: 5,
@@ -129,15 +129,10 @@ export default function MigrationVisualizer() {
 
   const [nodes, setNodes] = useState(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
-  const allFlags = useFlags();
-
-  console.log("all flags", allFlags);
   const { databaseConnectionConfig, apiConnectionConfiguration } = useFlags();
+  const launchDarklyClient = useLDClient();
 
   useEffect(() => {
-    console.log("database connection configuration", databaseConnectionConfig);
-    console.log("api connection configuration", apiConnectionConfiguration);
-
     if (apiConnectionConfiguration && databaseConnectionConfig) {
       const updatedEdges = edges.map((edge) => {
         switch (edge.id) {
