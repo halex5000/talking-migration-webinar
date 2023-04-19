@@ -24,6 +24,7 @@ export default function Home() {
   const { login, dataDebugPanel, captureLocationData } = useFlags();
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isDebugOpen, setIsDebugOpen] = useState(false);
   const user = useAppStore((state) => state.user);
   const logout = useAppStore((state) => state.logout);
 
@@ -43,8 +44,20 @@ export default function Home() {
           <AppBar variant="elevation" elevation={0}>
             <Toolbar>
               <Grid container>
-                <Grid item xs={11}></Grid>
-                <Grid item xs={1}>
+                <Grid item xs={10}></Grid>
+                <Grid item xs={2}>
+                  {dataDebugPanel ? (
+                    <Button
+                      onClick={() => {
+                        setIsDebugOpen(!isDebugOpen);
+                      }}
+                      sx={{ m: 1 }}
+                      variant="contained"
+                      color="secondary"
+                    >
+                      Debug
+                    </Button>
+                  ) : null}
                   {user ? (
                     <Button
                       variant="contained"
@@ -91,17 +104,31 @@ export default function Home() {
           </Typography>
         </Grid>
       </Container>
-      <Grid item xs={dataDebugPanel ? 6 : 12}>
-        <Container
-          sx={{
-            height: 450,
-            width: "100%",
-          }}
-        >
-          <MigrationVisualizer />
-        </Container>
-      </Grid>
-      {dataDebugPanel ? (
+      {isDebugOpen && dataDebugPanel ? (
+        <Grid item xs={6}>
+          <Container
+            sx={{
+              height: 500,
+              width: "100%",
+            }}
+          >
+            <MigrationVisualizer fullScreen={false} />
+          </Container>
+        </Grid>
+      ) : (
+        <Grid item xs={12}>
+          <Container
+            sx={{
+              height: 500,
+              width: "100%",
+            }}
+          >
+            <MigrationVisualizer fullScreen={true} />
+          </Container>
+        </Grid>
+      )}
+
+      {dataDebugPanel && isDebugOpen ? (
         <Grid item xs={6}>
           <DataVisualizer />
         </Grid>

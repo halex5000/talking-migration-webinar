@@ -11,19 +11,23 @@ import { useFlags, useLDClient } from "launchdarkly-react-client-sdk";
 import "reactflow/dist/style.css";
 import { useAppStore } from "../store/app";
 
-export default function MigrationVisualizer() {
+export default function MigrationVisualizer({
+  fullScreen,
+}: {
+  fullScreen: boolean;
+}) {
   const Label = ({ text }: { text: string }) => (
     <Container sx={{ justifyContent: "center" }}>
-      <Typography variant="h5">{text}</Typography>
+      <Typography variant={fullScreen ? "h5" : "h6"}>{text}</Typography>
     </Container>
   );
 
-  const beginningXPosition = 20;
-  const beginningYPosition = 120;
+  const beginningXPosition = fullScreen ? 120 : 20;
+  const beginningYPosition = fullScreen ? 200 : 120;
   const apiXPosition = beginningXPosition + 250;
-  const databaseXPosition = apiXPosition + 300;
-  const oldYPosition = 20;
-  const newYPosition = oldYPosition + 200;
+  const databaseXPosition = apiXPosition + (fullScreen ? 400 : 300);
+  const oldYPosition = fullScreen ? 50 : 20;
+  const newYPosition = oldYPosition + (fullScreen ? 300 : 200);
 
   const markerEnd = {
     strokeWidth: 5,
