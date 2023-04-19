@@ -18,7 +18,7 @@ export default function MigrationVisualizer({
 }) {
   const Label = ({ text }: { text: string }) => (
     <Container sx={{ justifyContent: "center" }}>
-      <Typography variant={fullScreen ? "h5" : "h6"}>{text}</Typography>
+      <Typography variant={fullScreen ? "h5" : "h5"}>{text}</Typography>
     </Container>
   );
 

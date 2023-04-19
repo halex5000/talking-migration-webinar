@@ -55,6 +55,7 @@ export default function DataVisualizer() {
             ...browserInfo,
             timezone,
             key: currentContext?.key,
+            name: currentContext?.name,
           },
         });
         setItems(response.data);

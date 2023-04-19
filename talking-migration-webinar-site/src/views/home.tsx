@@ -15,16 +15,17 @@ import lightModeLogo from "../assets/light-mode-logo.png";
 import MigrationVisualizer from "../components/migration-visualizer";
 import DataVisualizer from "../components/data-visualizer";
 import { useFlags, useLDClient } from "launchdarkly-react-client-sdk";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LoginDialog from "../components/login-dialog";
 import { useAppStore } from "../store/app";
 
 export default function Home() {
   const theme = useTheme();
-  const { login, dataDebugPanel, captureLocationData } = useFlags();
+  const { login, dataDebugPanel } = useFlags();
+  const client = useLDClient();
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isDebugOpen, setIsDebugOpen] = useState(false);
+  const [isDebugOpen, setIsDebugOpen] = useState(true);
   const user = useAppStore((state) => state.user);
   const logout = useAppStore((state) => state.logout);
 
@@ -32,7 +33,14 @@ export default function Home() {
     setIsLoginOpen(false);
   };
 
-  const client = useLDClient();
+  useEffect(() => {
+    if (!login) {
+      client?.identify({
+        ...client.getContext(),
+        name: undefined,
+      });
+    }
+  }, [login]);
 
   return (
     <Grid
