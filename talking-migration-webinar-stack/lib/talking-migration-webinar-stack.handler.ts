@@ -108,6 +108,10 @@ export async function handler(
         statusCode: 200,
         body: JSON.stringify({
           source,
+          reasons: {
+            api: apiConfig.reason,
+            db: databaseConfig.reason,
+          },
           items: dynamoResults.Items,
         }),
         headers,
@@ -134,6 +138,10 @@ export async function handler(
           headers,
           body: JSON.stringify({
             source,
+            reasons: {
+              api: apiConfig.reason,
+              db: databaseConfig.reason,
+            },
             error: { message: "Error: no payload in response" },
             items: [],
           }),
@@ -160,7 +168,14 @@ export async function handler(
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify({ source, items: recordSet["_1"] }),
+        body: JSON.stringify({
+          source,
+          reasons: {
+            api: apiConfig.reason,
+            db: databaseConfig.reason,
+          },
+          items: recordSet["_1"],
+        }),
       };
     }
   } catch (error) {
