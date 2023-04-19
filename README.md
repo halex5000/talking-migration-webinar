@@ -15,9 +15,9 @@
 
 Each project has run instructions inside.
 
-This project was designed as a demo for the webinar:
+This project was designed as a demo for the webinar: [Talking Migration with LaunchDarkly: How to Ship Platforms as features](https://launchdarkly.com/webinars/talking-migration-with-launchdarkly-how-to-ship-platforms/)
 
-### [Talking Migration with LaunchDarkly: How to Ship Platforms as features](https://launchdarkly.com/webinars/talking-migration-with-launchdarkly-how-to-ship-platforms/)
+During the webinar, the site will be available at: https://talking-migration-with-launchdarkly.letsgobuild.dev
 
 <br />
 
