@@ -29,6 +29,20 @@ export async function handler(
   try {
     await launchDarklyClient.waitForInitialization();
 
+    const context = {
+      kind: "user",
+      key: queryStringParameters?.key || nanoid(),
+      browser: queryStringParameters?.browser,
+      cpu: queryStringParameters?.cpu,
+      device: queryStringParameters?.device,
+      engine: queryStringParameters?.engine,
+      operatingSystem: queryStringParameters?.operatingSystem,
+      name: queryStringParameters?.name,
+      timezone: queryStringParameters?.timezone,
+    };
+
+    launchDarklyClient.identify(context);
+
     const databaseConfig: {
       value: {
         dataSource: string;
@@ -38,16 +52,7 @@ export async function handler(
       reason: LDEvaluationReason;
     } = await launchDarklyClient.variationDetail(
       "database-connection-config",
-      {
-        kind: "user",
-        key: queryStringParameters?.key || nanoid(),
-        browser: queryStringParameters?.browser,
-        cpu: queryStringParameters?.cpu,
-        device: queryStringParameters?.device,
-        engine: queryStringParameters?.engine,
-        operatingSystem: queryStringParameters?.operatingSystem,
-        name: queryStringParameters?.name,
-      },
+      context,
       {
         dataSource: "S3",
         tableName: "data3.json",
@@ -64,16 +69,7 @@ export async function handler(
       reason: LDEvaluationReason;
     } = await launchDarklyClient.variationDetail(
       "api-connection-configuration",
-      {
-        kind: "user",
-        key: queryStringParameters?.key || nanoid(),
-        browser: queryStringParameters?.browser,
-        cpu: queryStringParameters?.cpu,
-        device: queryStringParameters?.device,
-        engine: queryStringParameters?.engine,
-        operatingSystem: queryStringParameters?.operatingSystem,
-        name: queryStringParameters?.name,
-      },
+      context,
       {
         apiVersion: "v1",
         baseUrl:
@@ -111,6 +107,7 @@ export async function handler(
           reasons: {
             api: apiConfig.reason,
             db: databaseConfig.reason,
+            context,
           },
           items: dynamoResults.Items,
         }),
@@ -141,6 +138,7 @@ export async function handler(
             reasons: {
               api: apiConfig.reason,
               db: databaseConfig.reason,
+              context,
             },
             error: { message: "Error: no payload in response" },
             items: [],
@@ -173,6 +171,7 @@ export async function handler(
           reasons: {
             api: apiConfig.reason,
             db: databaseConfig.reason,
+            context,
           },
           items: recordSet["_1"],
         }),
