@@ -48,59 +48,64 @@ export default function Home() {
       container
       sx={{ textAlign: "center", mx: "auto", mt: 3, width: "100vw" }}
     >
-      {login && (
-        <>
-          <AppBar variant="elevation" elevation={0}>
-            <Toolbar>
-              <Grid container>
-                <Grid item xs={1}>
-                  {user ? `Hello ${user.username}` : null}
+      {login ||
+        (dataDebugPanel && (
+          <>
+            <AppBar variant="elevation" elevation={0}>
+              <Toolbar>
+                <Grid container>
+                  <Grid item xs={1}>
+                    {user ? `Hello ${user.username}` : null}
+                  </Grid>
+                  <Grid item xs={dataDebugPanel ? 9 : 10}></Grid>
+                  <Grid item xs={dataDebugPanel ? 2 : 1}>
+                    {dataDebugPanel ? (
+                      <Button
+                        onClick={() => {
+                          setIsDebugOpen(!isDebugOpen);
+                        }}
+                        sx={{ m: 1 }}
+                        variant="contained"
+                        color="warning"
+                      >
+                        Debug
+                      </Button>
+                    ) : null}
+                    {login ? (
+                      <>
+                        {user ? (
+                          <Button
+                            variant="contained"
+                            color="error"
+                            onClick={() => {
+                              client?.identify({
+                                ...client.getContext(),
+                                name: undefined,
+                              });
+                              logout();
+                            }}
+                          >
+                            Logout
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="contained"
+                            onClick={() => {
+                              setIsLoginOpen(true);
+                            }}
+                          >
+                            Login
+                          </Button>
+                        )}
+                      </>
+                    ) : null}
+                  </Grid>
                 </Grid>
-                <Grid item xs={dataDebugPanel ? 9 : 10}></Grid>
-                <Grid item xs={dataDebugPanel ? 2 : 1}>
-                  {dataDebugPanel ? (
-                    <Button
-                      onClick={() => {
-                        setIsDebugOpen(!isDebugOpen);
-                      }}
-                      sx={{ m: 1 }}
-                      variant="contained"
-                      color="warning"
-                    >
-                      Debug
-                    </Button>
-                  ) : null}
-                  {user ? (
-                    <Button
-                      variant="contained"
-                      color="error"
-                      onClick={() => {
-                        client?.identify({
-                          ...client.getContext(),
-                          name: undefined,
-                        });
-                        logout();
-                      }}
-                    >
-                      Logout
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="contained"
-                      onClick={() => {
-                        setIsLoginOpen(true);
-                      }}
-                    >
-                      Login
-                    </Button>
-                  )}
-                </Grid>
-              </Grid>
-            </Toolbar>
-          </AppBar>
-          <LoginDialog isOpen={isLoginOpen} handleClose={handleLoginClose} />
-        </>
-      )}
+              </Toolbar>
+            </AppBar>
+            <LoginDialog isOpen={isLoginOpen} handleClose={handleLoginClose} />
+          </>
+        ))}
       <Container sx={{ mt: 6 }}>
         <Grid item xs={12}>
           <Image
