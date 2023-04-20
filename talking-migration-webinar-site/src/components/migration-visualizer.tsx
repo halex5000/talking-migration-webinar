@@ -7,9 +7,8 @@ import ReactFlow, {
   Edge,
   MarkerType,
 } from "reactflow";
-import { useFlags, useLDClient } from "launchdarkly-react-client-sdk";
+import { useFlags } from "launchdarkly-react-client-sdk";
 import "reactflow/dist/style.css";
-import { useAppStore } from "../store/app";
 
 export default function MigrationVisualizer() {
   const Label = ({ text }: { text: string }) => (
@@ -94,6 +93,7 @@ export default function MigrationVisualizer() {
       target: "2",
       animated: true,
       markerEnd,
+      hidden: true,
     },
     {
       id: "old-api-to-old-database",
@@ -101,6 +101,7 @@ export default function MigrationVisualizer() {
       target: "5",
       animated: true,
       markerEnd,
+      hidden: true,
     },
     {
       id: "frontend-to-new-api",
@@ -108,20 +109,16 @@ export default function MigrationVisualizer() {
       target: "3",
       animated: false,
       markerEnd,
-    },
-    {
-      id: "old-api-to-new-database",
-      source: "2",
-      target: "4",
-      animated: false,
-      markerEnd,
+      hidden: true,
     },
     {
       id: "new-api-to-new-database",
       source: "3",
       target: "4",
+      targetHandle: "b",
       animated: false,
       markerEnd,
+      hidden: true,
     },
     {
       id: "new-api-to-old-database",
@@ -129,44 +126,66 @@ export default function MigrationVisualizer() {
       target: "5",
       animated: false,
       markerEnd,
+      hidden: true,
+    },
+    {
+      id: "old-api-to-new-database",
+      source: "2",
+      target: "4",
+      targetHandle: "a",
+      animated: false,
+      hidden: true,
     },
   ];
 
   const [nodes, setNodes] = useState(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
   const { databaseConnectionConfig, apiConnectionConfiguration } = useFlags();
-  const launchDarklyClient = useLDClient();
 
   useEffect(() => {
     if (apiConnectionConfiguration && databaseConnectionConfig) {
       const updatedEdges = edges.map((edge) => {
+        const isVersionOne = apiConnectionConfiguration.apiVersion === "v1";
+        const isVersionTwo = apiConnectionConfiguration.apiVersion === "v2";
+        const isDynamoDB = databaseConnectionConfig.dataSource === "DynamoDB";
+        const isS3 = databaseConnectionConfig.dataSource === "S3";
         switch (edge.id) {
           case "frontend-to-old-api":
-            edge.animated = apiConnectionConfiguration.apiVersion === "v1";
+            edge.animated = isVersionOne;
+            edge.hidden = !isVersionOne;
             return edge;
           case "frontend-to-new-api":
-            edge.animated = apiConnectionConfiguration.apiVersion === "v2";
+            edge.animated = isVersionTwo;
+            edge.hidden = !isVersionTwo;
             return edge;
           // invalid configuration
           case "old-api-to-new-database":
-            edge.animated =
-              apiConnectionConfiguration.apiVersion === "v1" &&
-              databaseConnectionConfig.dataSource === "DynamoDB";
+            edge.animated = isVersionOne && isDynamoDB;
+            edge.hidden = !isVersionOne || !isDynamoDB;
+            edge.markerEnd = {
+              type: MarkerType.ArrowClosed,
+              width: 20,
+              height: 20,
+              color: "#FF0072",
+            };
+            edge.label = "unsupported configuration";
+            edge.labelBgPadding = [15, 10];
+            edge.style = {
+              strokeWidth: 1,
+              stroke: "#FF0072",
+            };
             return edge;
           case "old-api-to-old-database":
-            edge.animated =
-              apiConnectionConfiguration.apiVersion === "v1" &&
-              databaseConnectionConfig.dataSource !== "DynamoDB";
+            edge.animated = isVersionOne && isS3;
+            edge.hidden = !isVersionOne || !isS3;
             return edge;
           case "new-api-to-new-database":
-            edge.animated =
-              apiConnectionConfiguration.apiVersion === "v2" &&
-              databaseConnectionConfig.dataSource === "DynamoDB";
+            edge.animated = isVersionTwo && isDynamoDB;
+            edge.hidden = !isVersionTwo || !isDynamoDB;
             return edge;
           case "new-api-to-old-database":
-            edge.animated =
-              apiConnectionConfiguration.apiVersion === "v2" &&
-              databaseConnectionConfig.dataSource === "S3";
+            edge.animated = isVersionTwo && isS3;
+            edge.hidden = !isVersionTwo || !isS3;
             return edge;
           default:
             return edge;
