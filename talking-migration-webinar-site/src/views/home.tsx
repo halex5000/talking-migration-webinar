@@ -38,6 +38,8 @@ export default function Home() {
     setIsLoginOpen(false);
   };
 
+  // here we're observing changes to the feature flag to remove user
+  // name from context when the feature is disabled
   useEffect(() => {
     if (!login) {
       client?.identify({
@@ -137,7 +139,7 @@ export default function Home() {
           dataDebugPanel is a LaunchDarkly feature flag and controls the visibility of this component
       */}
       {isDebugOpen && dataDebugPanel ? (
-        <Grid item xs={6}>
+        <Grid item xs={12}>
           <Container
             sx={{
               height: 500,
@@ -160,7 +162,7 @@ export default function Home() {
         </Grid>
       )}
       {dataDebugPanel && isDebugOpen ? (
-        <Grid item xs={6}>
+        <Grid item xs={12}>
           <DataVisualizer />
         </Grid>
       ) : (
