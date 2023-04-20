@@ -146,7 +146,7 @@ export default function Home() {
               width: "100%",
             }}
           >
-            <MigrationVisualizer fullScreen={false} />
+            <MigrationVisualizer />
           </Container>
         </Grid>
       ) : (
@@ -157,13 +157,17 @@ export default function Home() {
               width: "100%",
             }}
           >
-            <MigrationVisualizer fullScreen={true} />
+            <MigrationVisualizer />
           </Container>
         </Grid>
       )}
       {dataDebugPanel && isDebugOpen ? (
-        <Grid item xs={12}>
-          <DataVisualizer />
+        <Grid container>
+          <Grid item xs={3}></Grid>
+          <Grid item xs={6}>
+            <DataVisualizer />
+          </Grid>
+          <Grid item xs={3}></Grid>
         </Grid>
       ) : (
         <></>
